@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Custom Minesweeper Game</title>
+    <title>KEVINS BITCH</title>
     <style>
         body {
             display: flex;
@@ -32,8 +32,15 @@
             cursor: pointer;
             user-select: none;
         }
-        .tile.open {
-            background-color: #fff;
+        .tile.open.bomb {
+            background-color: red;
+        }
+        .tile.open.number {
+            background-color: green;
+        }
+        .tile img {
+            width: 30px;
+            height: 30px;
         }
         #reset-button {
             margin-top: 30px;
@@ -44,7 +51,7 @@
     </style>
 </head>
 <body>
-    <h1>Custom Minesweeper Game</h1>
+    <h1>Kevins a bitch</h1>
     <div id="game-board"></div>
     <button id="reset-button">Reset</button>
 
@@ -91,9 +98,15 @@
             const row = parseInt(tile.dataset.row);
             const col = parseInt(tile.dataset.col);
             if (!tile.classList.contains('open')) {
-                tiles.forEach(t => t.classList.remove('open'));
+                tiles.forEach(t => t.classList.remove('open', 'bomb', 'number'));
                 tile.classList.add('open');
-                tile.textContent = numbers[row][col];
+                if (numbers[row][col] === 0) {
+                    tile.classList.add('bomb');
+                    tile.innerHTML = '<img src="bomb.png" alt="Bomb">';
+                } else {
+                    tile.classList.add('number');
+                    tile.textContent = numbers[row][col];
+                }
             }
         }
 
