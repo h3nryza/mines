@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KEVINS BITCH</title>
+    <title>Go Gogeothermal</title>
+    <link rel="icon" href="icon.jpg" type="image/x-icon">
     <style>
         body {
             display: flex;
@@ -13,6 +14,17 @@
             height: 100vh;
             margin: 0;
             font-family: Arial, sans-serif;
+        }
+        #title {
+            width: 200px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+        #game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
         #game-board {
             display: grid;
@@ -42,18 +54,35 @@
             width: 30px;
             height: 30px;
         }
-        #reset-button {
+        #footer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
             margin-top: 30px;
+        }
+        #reset-button {
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
+            margin-right: 20px;
+        }
+        #qrcode {
+            width: 100px;
+            height: 100px;
         }
     </style>
 </head>
 <body>
-    <h1>Kevins a bitch</h1>
-    <div id="game-board"></div>
-    <button id="reset-button">Reset</button>
+    <img id="title" src="logo.jpg" alt="Title">
+    <div id="game-container">
+        <div id="game-board"></div>
+    </div>
+    <div id="footer">
+        <button id="reset-button">Reset</button>
+        <a href="https://www.gogeothermal.co.uk/" target="_blank">
+            <img id="qrcode" src="qrcode.png" alt="QR Code">
+        </a>
+    </div>
 
     <script>
         const gameBoard = document.getElementById('game-board');
@@ -105,7 +134,7 @@
                     tile.innerHTML = '<img src="bomb.png" alt="Bomb">';
                 } else {
                     tile.classList.add('number');
-                    tile.textContent = numbers[row][col];
+                    tile.innerHTML = '<img src="star.png" alt="Star">';
                 }
             }
         }
