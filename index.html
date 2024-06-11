@@ -1,163 +1,105 @@
-html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Custom Minesweeper</title>
+    <title>Custom Minesweeper Game</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-top: 20px;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
         }
-        .board {
+        #game-board {
             display: grid;
             grid-template-columns: repeat(10, 50px);
             grid-template-rows: repeat(10, 50px);
-            gap: 2px;
+            gap: 5px;
+            margin-bottom: 30px;
         }
-        .cell {
+        .tile {
             width: 50px;
             height: 50px;
+            background-color: #ccc;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 1px solid #ccc;
-            background-color: #f0f0f0;
+            font-size: 20px;
             cursor: pointer;
-            font-size: 18px;
+            user-select: none;
         }
-        .cell.mine {
-            background-color: red;
+        .tile.open {
+            background-color: #fff;
         }
-        .cell.number {
-            background-color: green;
-        }
-        .hidden {
-            background-color: #ddd;
-        }
-        .reset {
-            margin-top: 20px;
+        #reset-button {
+            margin-top: 30px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <h1>Custom Minesweeper</h1>
-    <div class="board" id="board"></div>
-    <div class="reset">
-        <button onclick="promptReset()">Reset Game</button>
-    </div>
+    <h1>Custom Minesweeper Game</h1>
+    <div id="game-board"></div>
+    <button id="reset-button">Reset</button>
 
     <script>
-        const BOARD_SIZE = 10;
-        const MINES_COUNT = 20;
-        const PASSWORD = 'password';
+        const gameBoard = document.getElementById('game-board');
+        const resetButton = document.getElementById('reset-button');
+        const boardSize = 10;
+        const tiles = [];
+        let numbers = Array.from({ length: boardSize }, () => Array(boardSize).fill(0));
 
-        function generateBoard() {
-            const board = [];
-            for (let i = 0; i < BOARD_SIZE; i++) {
-                const row = [];
-                for (let j = 0; j < BOARD_SIZE; j++) {
-                    row.push({
-                        isMine: false,
-                        isRevealed: false,
-                        number: 0,
-                    });
-                }
-                board.push(row);
-            }
-
-            // Place mines
-            let minesPlaced = 0;
-            while (minesPlaced < MINES_COUNT) {
-                const row = Math.floor(Math.random() * BOARD_SIZE);
-                const col = Math.floor(Math.random() * BOARD_SIZE);
-                if (!board[row][col].isMine) {
-                    board[row][col].isMine = true;
-                    minesPlaced++;
+        function generateRandomNumbers() {
+            const positions = [];
+            while (positions.length < boardSize) {
+                const row = Math.floor(Math.random() * boardSize);
+                const col = Math.floor(Math.random() * boardSize);
+                if (!positions.some(([r, c]) => Math.abs(r - row) <= 1 && Math.abs(c - col) <= 1)) {
+                    positions.push([row, col]);
                 }
             }
-
-            // Place numbers with constraints
-            const numbers = Array.from({ length: 10 }, (_, i) => i + 1).sort(() => Math.random() - 0.5);
-            for (const number of numbers) {
-                let placed = false;
-                while (!placed) {
-                    const row = Math.floor(Math.random() * BOARD_SIZE);
-                    const col = Math.floor(Math.random() * BOARD_SIZE);
-                    if (canPlaceNumber(board, row, col)) {
-                        board[row][col].number = number;
-                        placed = true;
-                    }
-                }
-            }
-
-            return board;
-        }
-
-        function canPlaceNumber(board, row, col) {
-            if (board[row][col].isMine || board[row][col].number !== 0) {
-                return false;
-            }
-            for (let i = Math.max(0, row - 2); i <= Math.min(BOARD_SIZE - 1, row + 2); i++) {
-                for (let j = Math.max(0, col - 2); j <= Math.min(BOARD_SIZE - 1, col + 2); j++) {
-                    if (board[i][j].number !== 0) {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }
-
-        function renderBoard(board) {
-            const boardElement = document.getElementById('board');
-            boardElement.innerHTML = '';
-            board.forEach((row, rowIndex) => {
-                row.forEach((cell, colIndex) => {
-                    const cellElement = document.createElement('div');
-                    cellElement.classList.add('cell', 'hidden');
-                    cellElement.dataset.row = rowIndex;
-                    cellElement.dataset.col = colIndex;
-                    cellElement.onclick = () => handleCellClick(rowIndex, colIndex);
-                    boardElement.appendChild(cellElement);
-                });
+            positions.forEach(([row, col], index) => {
+                numbers[row][col] = index + 1;
             });
         }
 
-        function handleCellClick(row, col) {
-            const cell = board[row][col];
-            const cellElement = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
-            if (cell.isRevealed) return;
-
-            cell.isRevealed = true;
-            cellElement.classList.remove('hidden');
-            if (cell.isMine) {
-                cellElement.classList.add('mine');
-            } else {
-                cellElement.classList.add('number');
-                cellElement.textContent = cell.number;
+        function createBoard() {
+            gameBoard.innerHTML = '';
+            tiles.length = 0;
+            generateRandomNumbers();
+            for (let i = 0; i < boardSize; i++) {
+                for (let j = 0; j < boardSize; j++) {
+                    const tile = document.createElement('div');
+                    tile.classList.add('tile');
+                    tile.dataset.row = i;
+                    tile.dataset.col = j;
+                    tile.addEventListener('click', onTileClick);
+                    tiles.push(tile);
+                    gameBoard.appendChild(tile);
+                }
             }
         }
 
-        function promptReset() {
-            const input = prompt('Enter the password to reset the game:');
-            if (input === PASSWORD) {
-                resetGame();
-            } else {
-                alert('Incorrect password.');
+        function onTileClick(event) {
+            const tile = event.target;
+            const row = parseInt(tile.dataset.row);
+            const col = parseInt(tile.dataset.col);
+            if (!tile.classList.contains('open')) {
+                tiles.forEach(t => t.classList.remove('open'));
+                tile.classList.add('open');
+                tile.textContent = numbers[row][col];
             }
         }
 
-        function resetGame() {
-            board = generateBoard();
-            renderBoard(board);
-        }
+        resetButton.addEventListener('click', createBoard);
 
-        let board = generateBoard();
-        renderBoard(board);
+        createBoard();
     </script>
 </body>
 </html>
